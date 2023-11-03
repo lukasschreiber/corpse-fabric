@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "corpse-fabric",
+  "version": "${version}",
+  "name": "corpse-fabric",
+  "description": "",
+  "authors": [],
+  "contact": {
+    "repo": "https://github.com/lukas/corpse-fabric"
+  },
+  "license": "Apache-2.0",
+  "icon": "assets/corpse-fabric/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "org.lukasschreiber.corpsefabric.client.CorpseClient"
+    ],
+    "main": [
+      "org.lukasschreiber.corpsefabric.Corpse"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": "${minecraft_version}"
+  },
+  "mixins": [
+    "corpse.mixins.json"
+  ]
+}
