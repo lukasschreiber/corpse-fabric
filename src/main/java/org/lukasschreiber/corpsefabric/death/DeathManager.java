@@ -5,6 +5,7 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.Level;
 import org.jetbrains.annotations.NotNull;
@@ -56,8 +57,7 @@ public class DeathManager {
             Logger.INSTANCE.log(Level.ERROR, "Failed to enumerate files in the directory "+dir);
             exception.printStackTrace();
         }
-
-        deaths.sort(Comparator.comparingLong(Death::getTimestamp));
+        deaths.sort((a, b) -> b.getTimestamp().compareTo(a.getTimestamp()));
         return deaths;
     }
     public static Optional<Death> getLatestDeath(ServerPlayerEntity player) {

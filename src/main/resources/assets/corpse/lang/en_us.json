@@ -1,4 +1,12 @@
 {
   "key.corpse.death_overview": "Death Overview",
-  "category.corpse.main": "Corpse"
+  "category.corpse.main": "Corpse",
+  "messages.corpse.player_died_short": "Player %s died",
+  "messages.corpse.player_died": "The player %s has died at %s",
+  "messages.corpse.no_death_found": "The player %s has not died recently.",
+  "time.corpse.past.seconds": "%d sec ago",
+  "time.corpse.past.minutes": "%d min ago",
+  "time.corpse.past.hours": "%d h ago",
+  "time.corpse.past.long_time": "a long time ago",
+  "time.corpse.format.date_time": "dd.MM.yyyy HH:mm:ss"
 }
