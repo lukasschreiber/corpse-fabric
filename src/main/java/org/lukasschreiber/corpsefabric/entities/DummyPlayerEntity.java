@@ -18,12 +18,12 @@ public class DummyPlayerEntity extends PlayerLikeEntity {
 
     public DummyPlayerEntity(EntityType<DummyPlayerEntity> type, World world) {
         super(type, world);
-        this.skinTexture = new Identifier(Corpse.NAMESPACE, "textures/entity/dummy/steve.png");
     }
 
     public static DummyPlayerEntity fromDeath(Death death, World world) {
         DummyPlayerEntity dummy = new DummyPlayerEntity(EntityTypes.DUMMY_PLAYER_ENTITY_TYPE, world);
-        dummy.skinTexture = death.getSkinTexture();
+        dummy.setSkinTexture(death.getSkinTexture());
+
         Vec3d pos = death.getPos();
         dummy.setPos(pos.x, pos.y + 1, pos.z);
         List<ItemStack> armorItems = death.getArmor();

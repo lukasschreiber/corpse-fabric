@@ -5,30 +5,66 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EquipmentSlot;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.screen.PlayerScreenHandler;
 import net.minecraft.screen.ScreenHandler;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.Identifier;
+import org.lukasschreiber.corpsefabric.Corpse;
+import org.lukasschreiber.corpsefabric.death.Death;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class HistoryScreenHandler extends ScreenHandler {
-    static final Identifier[] EMPTY_ARMOR_SLOT_TEXTURES;
-    private static final EquipmentSlot[] EQUIPMENT_SLOT_ORDER;
+    public static final Identifier[] EMPTY_ARMOR_SLOT_TEXTURES;
+    public static final EquipmentSlot[] EQUIPMENT_SLOT_ORDER;
+
+    private final List<Death> deaths;
+    private int selectedDeathIndex = 0;
+    private final PlayerEntity player;
 
     static {
         EMPTY_ARMOR_SLOT_TEXTURES = new Identifier[]{PlayerScreenHandler.EMPTY_BOOTS_SLOT_TEXTURE, PlayerScreenHandler.EMPTY_LEGGINGS_SLOT_TEXTURE, PlayerScreenHandler.EMPTY_CHESTPLATE_SLOT_TEXTURE, PlayerScreenHandler.EMPTY_HELMET_SLOT_TEXTURE};
         EQUIPMENT_SLOT_ORDER = new EquipmentSlot[]{EquipmentSlot.HEAD, EquipmentSlot.CHEST, EquipmentSlot.LEGS, EquipmentSlot.FEET};
     }
 
+    public HistoryScreenHandler(int syncId, PlayerInventory inventory, PacketByteBuf buf) {
+        this(syncId, inventory, new ArrayList<>());
+        NbtCompound compound = buf.readNbt();
+        if(compound == null) return;
 
-    protected HistoryScreenHandler(Inventory inventory) {
-        super(null, 0);
+        NbtList deathList = compound.getList("Deaths", NbtElement.COMPOUND_TYPE);
 
-        this.initializeSlots(inventory);
+        for(int i = 0; i < deathList.size(); i++) {
+            this.deaths.add(Death.fromNbt(deathList.getCompound(i)));
+        }
+
+        this.init();
     }
 
-    private void initializeSlots(Inventory inventory) {
+    public HistoryScreenHandler(int syncId, PlayerInventory inventory, List<Death> deaths) {
+        super(Corpse.HISTORY_SCREEN_HANDLER_TYPE, syncId);
+        this.deaths = deaths;
+        this.player = inventory.player;
+        this.init();
+    }
+
+    private void init() {
+        this.selectedDeathIndex = deaths.stream().filter(death -> death.getPos().distanceTo(this.player.getPos()) < 2).findFirst().map(this.deaths::indexOf).orElse(0);
+        Inventory inventory = this.deaths.isEmpty() ? new SimpleInventory() : this.deaths.get(this.selectedDeathIndex).getInventory();
+        this.initSlots(inventory);
+    }
+
+    private void initSlots(Inventory inventory) {
+        this.slots.clear();
         for (int i = 0; i < 4; ++i) {
             final EquipmentSlot equipmentSlot = EQUIPMENT_SLOT_ORDER[i];
             this.addSlot(new Slot(inventory, 3 - i, 8, 8 + i * 18) {
@@ -94,5 +130,17 @@ public class HistoryScreenHandler extends ScreenHandler {
     @Override
     public boolean canUse(PlayerEntity player) {
         return true;
+    }
+
+    public List<Death> getDeaths() {
+        return deaths;
+    }
+
+    public int getSelectedDeathIndex() {
+        return selectedDeathIndex;
+    }
+
+    public void setSelectedDeathIndex(int selectedDeathIndex) {
+        this.selectedDeathIndex = selectedDeathIndex;
     }
 }

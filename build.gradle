@@ -12,6 +12,17 @@ repositories {
     // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
     // See https://docs.gradle.org/current/userguide/declaring_repositories.html
     // for more information about repositories.
+
+    maven {
+        // location of the maven that hosts JEI files since January 2023
+        name = "Jared's maven"
+        url = "https://maven.blamejared.com/"
+    }
+    maven {
+        // location of a maven mirror for JEI files, as a fallback
+        name = "ModMaven"
+        url = "https://modmaven.dev"
+    }
 }
 
 dependencies {
@@ -23,11 +34,8 @@ dependencies {
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
-    // compile against the JEI API but do not include it at runtime
-    modCompileOnlyApi "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
-    modCompileOnlyApi "mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}"
-    // at runtime, use the full JEI jar for Fabric
-    modRuntimeOnly "mezz.jei:jei-${minecraft_version}-fabric:${jei_version}"
+    modCompileOnly("mezz.jei:jei-${minecraft_version}-fabric:${jei_version}") {exclude group: "mezz.jei"}
+
 }
 
 processResources {
@@ -40,6 +48,24 @@ processResources {
         expand "version": project.version,
                 "minecraft_version": project.minecraft_version,
                 "loader_version": project.loader_version
+    }
+}
+
+loom {
+    runs {
+        client {
+            if (project.randomize_player == "false") {
+                programArgs(["--username", project.player_name, "--uuid", project.player_uuid])
+            }
+            runDir = "runClient"
+        }
+        server {
+            runDir = "runServer"
+        }
+    }
+
+    runConfigs.configureEach {
+        ideConfigGenerated = true
     }
 }
 

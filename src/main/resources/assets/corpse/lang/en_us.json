@@ -8,5 +8,9 @@
   "time.corpse.past.minutes": "%d min ago",
   "time.corpse.past.hours": "%d h ago",
   "time.corpse.past.long_time": "a long time ago",
-  "time.corpse.format.date_time": "dd.MM.yyyy HH:mm:ss"
+  "time.corpse.format.date_time": "dd.MM.yyyy HH:mm:ss",
+  "screen.corpse.history_title": "Death History",
+  "screen.corpse.corpse_of": "Corpse of %s",
+  "title.corpse.config": "Corpse Config",
+  "category.corpse.general": "General"
 }

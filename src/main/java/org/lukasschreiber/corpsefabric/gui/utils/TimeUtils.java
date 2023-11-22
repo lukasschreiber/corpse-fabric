@@ -1,4 +1,4 @@
-package org.lukasschreiber.corpsefabric.gui;
+package org.lukasschreiber.corpsefabric.gui.utils;
 
 import net.minecraft.text.Text;
 

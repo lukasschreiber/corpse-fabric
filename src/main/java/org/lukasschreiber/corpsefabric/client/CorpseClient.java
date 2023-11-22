@@ -9,23 +9,23 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
 import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.minecraft.client.gui.screen.ingame.HandledScreens;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.render.entity.model.EntityModelLayer;
+import net.minecraft.client.render.entity.model.SkeletonEntityModel;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.nbt.NbtElement;
-import net.minecraft.nbt.NbtList;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import org.lukasschreiber.corpsefabric.Corpse;
 import org.lukasschreiber.corpsefabric.death.Death;
 import org.lukasschreiber.corpsefabric.death.DeathManager;
 import org.lukasschreiber.corpsefabric.entities.*;
+import org.lukasschreiber.corpsefabric.gui.CorpseInventoryScreen;
 import org.lukasschreiber.corpsefabric.gui.HistoryScreen;
+import org.lukasschreiber.corpsefabric.gui.HistoryScreenHandler;
 import org.lukasschreiber.corpsefabric.net.NetworkingConstants;
 import org.lwjgl.glfw.GLFW;
-
-import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class CorpseClient implements ClientModInitializer {
@@ -41,31 +41,22 @@ public class CorpseClient implements ClientModInitializer {
     public void onInitializeClient() {
 
         EntityRendererRegistry.register(EntityTypes.DUMMY_PLAYER_ENTITY_TYPE, (DummyPlayerRenderer::new));
+        EntityRendererRegistry.register(EntityTypes.CORPSE_ENTITY_TYPE, CorpseEntityRenderer::new);
+
         EntityModelLayerRegistry.registerModelLayer(MODEL_DUMMY_PLAYER_LAYER, DummyPlayerEntityModel::getTexturedModelData);
         EntityModelLayerRegistry.registerModelLayer(MODEL_CORPSE_ENTITY_LAYER, CorpseEntityModel::getTexturedModelData);
-        EntityRendererRegistry.register(EntityTypes.CORPSE_ENTITY_TYPE, CorpseEntityRenderer::new);
+
+        // somehow the compiler needs the type annotations here
+        HandledScreens.<HistoryScreenHandler, HistoryScreen>register(Corpse.HISTORY_SCREEN_HANDLER_TYPE, HistoryScreen::new);
+        HandledScreens.register(Corpse.CORPSE_INVENTORY_SCREEN_HANDLER_TYPE, CorpseInventoryScreen::new);
 
         ClientPlayNetworking.registerGlobalReceiver(NetworkingConstants.PLAYER_DIED, (client, handler, buf, responseSender) -> {
             NbtCompound compound = buf.readNbt();
             if (client.player == null || compound == null) return;
             Death death = Death.fromNbt(compound);
 
-            // store death
-            DeathManager.addDeath(client.getServer(), death);
-
             client.execute(() -> {
                 client.player.sendMessage(Text.translatable("messages.corpse.player_died_short", death.getPlayerName()));
-            });
-        });
-
-        ClientPlayNetworking.registerGlobalReceiver(NetworkingConstants.ALL_DEATHS, (client, handler, buf, responseSender) -> {
-            NbtCompound response = buf.readNbt();
-            if (response == null || !response.contains("Deaths")) return;
-            NbtList deathsCompounds = response.getList("Deaths", NbtElement.COMPOUND_TYPE);
-            List<Death> deaths = deathsCompounds.stream().map(c -> Death.fromNbt((NbtCompound) c)).toList();
-
-            client.execute(() -> {
-                client.setScreen(new HistoryScreen(client.player, deaths));
             });
         });
 
@@ -73,7 +64,7 @@ public class CorpseClient implements ClientModInitializer {
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             while (keyBinding.wasPressed() && client.player != null) {
-                ClientPlayNetworking.send(NetworkingConstants.REQUEST_ALL_DEATHS, PacketByteBufs.empty());
+                ClientPlayNetworking.send(NetworkingConstants.OPEN_DEATH_HISTORY, PacketByteBufs.empty());
             }
         });
     }

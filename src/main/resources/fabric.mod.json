@@ -17,6 +17,9 @@
     ],
     "main": [
       "org.lukasschreiber.corpsefabric.Corpse"
+    ],
+    "jei_mod_plugin": [
+      "org.lukasschreiber.corpsefabric.compat.jei.JeiPlugin"
     ]
   },
   "depends": {

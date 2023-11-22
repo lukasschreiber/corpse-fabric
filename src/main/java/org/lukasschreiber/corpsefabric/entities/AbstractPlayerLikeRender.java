@@ -4,12 +4,13 @@ import net.minecraft.client.render.entity.BipedEntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.model.ArmorEntityModel;
+import net.minecraft.client.render.entity.model.BipedEntityModel;
 import net.minecraft.client.render.entity.model.EntityModelLayers;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
 import net.minecraft.entity.mob.MobEntity;
 import net.minecraft.util.Identifier;
 
-abstract public class AbstractPlayerLikeRender<E extends MobEntity, M extends PlayerEntityModel<E>> extends BipedEntityRenderer<E, M> {
+abstract public class AbstractPlayerLikeRender<E extends MobEntity, M extends BipedEntityModel<E>> extends BipedEntityRenderer<E, M> {
 
     public AbstractPlayerLikeRender(EntityRendererFactory.Context ctx, M modelPart) {
         super(ctx, modelPart, 0.5f);

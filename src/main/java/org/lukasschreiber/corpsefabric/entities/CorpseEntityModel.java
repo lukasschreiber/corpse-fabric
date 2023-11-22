@@ -4,6 +4,7 @@ import net.minecraft.client.model.Dilation;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.model.TexturedModelData;
 import net.minecraft.client.render.entity.model.PlayerEntityModel;
+import net.minecraft.client.render.entity.model.SkeletonEntityModel;
 
 public class CorpseEntityModel extends PlayerEntityModel<CorpseEntity> {
 
